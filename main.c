@@ -4,8 +4,8 @@
 #include <stdbool.h>
 #include <string.h>
 
-const int cellSize = 5;
-#define GRID_SIZE 500
+const int cellSize = 2;
+#define GRID_SIZE 1000
 
 // assumes square matrix
 int checkBounds(int i, int j, int mtxSize){
@@ -15,7 +15,7 @@ int checkBounds(int i, int j, int mtxSize){
 }
 
 void drawCell(int x, int y, Color color){
-    DrawRectangle(x, y, cellSize, cellSize, color);
+    DrawRectangle(x * cellSize, y*cellSize, cellSize, cellSize, color);
 }
 
 bool checkCell(int aliveNeighbours, bool dead){
@@ -70,32 +70,11 @@ int main() {
     InitWindow(GRID_SIZE, GRID_SIZE, "raylib");
     int grid[GRID_SIZE][GRID_SIZE] = { 0 };
 
-    // blinker pattern
-    // grid[250][245] = 1;
-    // grid[250][250] = 1;
-    // grid[250][255] = 1;
-
-    // block pattern
-    // grid[250][250] = 1;
-    // grid[250][255] = 1;
-    // grid[255][250] = 1;
-    // grid[255][255] = 1;
-
-    // R-pentomino
-    // grid[250][255] = 1;
-    // grid[250][260] = 1;
-    // grid[255][250] = 1;
-    // grid[255][255] = 1;
-    // grid[260][255] = 1;
-
-    // Acorn
-    grid[250][250] = 1;
-    grid[250][255] = 1;
-    grid[255][255] = 1;
-    grid[255][265] = 1;
-    grid[255][270] = 1;
-    grid[255][275] = 1;
-    grid[255][280] = 1;
+    grid[50*cellSize][51*cellSize] = 1;
+    grid[50*cellSize][52*cellSize] = 1;
+    grid[51*cellSize][50*cellSize] = 1;
+    grid[51*cellSize][51*cellSize] = 1;
+    grid[52*cellSize][51*cellSize] = 1;
 
     while (!WindowShouldClose()) {
         BeginDrawing();
@@ -103,7 +82,7 @@ int main() {
 
         checkGrid(grid);
 
-        usleep(300 * 1000);
+        usleep(100 * 1000);
         EndDrawing();
     }
 
