@@ -4,8 +4,9 @@
 #include <stdbool.h>
 #include <string.h>
 
-const int cellSize = 2;
-#define GRID_SIZE 1000
+const int cellSize = 3;
+#define GRID_SIZE 200
+#define WINDOW_SIZE (GRID_SIZE * cellSize)
 
 // assumes square matrix
 int checkBounds(int i, int j, int mtxSize){
@@ -23,6 +24,14 @@ bool checkCell(int aliveNeighbours, bool dead){
     return aliveNeighbours == 2 || aliveNeighbours == 3;
 }
 
+void spawnPentomino(int x, int y, int grid[GRID_SIZE][GRID_SIZE]){
+    grid[x][y+1] = 1;
+    grid[x][y+2] = 1;
+    grid[x+1][y] = 1;
+    grid[x+1][y+1] = 1;
+    grid[x+2][y+1] = 1;
+}
+
 // [i-5, j-5] [i, j-5] [i+5, j-5]
 // [i-5,  j ] [ i, j ] [i+5,  j ]
 // [i-5, j+5] [ i,j+5] [i+5, j+5]
@@ -31,29 +40,29 @@ void checkGrid(int grid[GRID_SIZE][GRID_SIZE]){
     memcpy(newGrid, grid, GRID_SIZE * GRID_SIZE * sizeof(int));
 
     bool dead = false;
-    for(int i = 0; i < GRID_SIZE; i+= cellSize){
-        for(int j = 0; j < GRID_SIZE; j+= cellSize){
+    for(int i = 0; i < GRID_SIZE; i++){
+        for(int j = 0; j < GRID_SIZE; j++){
             int aliveNeighbours = 0;
             dead = grid[i][j] == 0 ? true : false;
             // i - 5
-            if(checkBounds(i-cellSize, j-cellSize, GRID_SIZE))
-                if(grid[i-cellSize][j-cellSize] == 1) aliveNeighbours++;
-            if(checkBounds(i-cellSize, j, GRID_SIZE))
-                if(grid[i-cellSize][j] == 1) aliveNeighbours++;
-            if(checkBounds(i-cellSize, j+cellSize, GRID_SIZE))
-                if(grid[i-cellSize][j+cellSize] == 1) aliveNeighbours++;
+            if(checkBounds(i-1, j-1, GRID_SIZE))
+                if(grid[i-1][j-1] == 1) aliveNeighbours++;
+            if(checkBounds(i-1, j, GRID_SIZE))
+                if(grid[i-1][j] == 1) aliveNeighbours++;
+            if(checkBounds(i-1, j+1, GRID_SIZE))
+                if(grid[i-1][j+1] == 1) aliveNeighbours++;
             // i
-            if(checkBounds(i, j-cellSize, GRID_SIZE))
-                if(grid[i][j-cellSize] == 1) aliveNeighbours++;
-            if(checkBounds(i, j+cellSize, GRID_SIZE))
-                if(grid[i][j+cellSize] == 1) aliveNeighbours++;
+            if(checkBounds(i, j-1, GRID_SIZE))
+                if(grid[i][j-1] == 1) aliveNeighbours++;
+            if(checkBounds(i, j+1, GRID_SIZE))
+                if(grid[i][j+1] == 1) aliveNeighbours++;
             // i+5
-            if(checkBounds(i+cellSize, j-cellSize, GRID_SIZE))
-                if(grid[i+cellSize][j-cellSize] == 1) aliveNeighbours++;
-            if(checkBounds(i+cellSize, j, GRID_SIZE))
-                if(grid[i+cellSize][j] == 1) aliveNeighbours++;
-            if(checkBounds(i+cellSize, j+cellSize, GRID_SIZE))
-                if(grid[i+cellSize][j+cellSize] == 1) aliveNeighbours++;
+            if(checkBounds(i+1, j-1, GRID_SIZE))
+                if(grid[i+1][j-1] == 1) aliveNeighbours++;
+            if(checkBounds(i+1, j, GRID_SIZE))
+                if(grid[i+1][j] == 1) aliveNeighbours++;
+            if(checkBounds(i+1, j+1, GRID_SIZE))
+                if(grid[i+1][j+1] == 1) aliveNeighbours++;
 
             if(checkCell(aliveNeighbours, dead)){
                 drawCell(i, j, BLACK);
@@ -67,15 +76,10 @@ void checkGrid(int grid[GRID_SIZE][GRID_SIZE]){
 // 0,0 5,5
 
 int main() {
-    InitWindow(GRID_SIZE, GRID_SIZE, "raylib");
+    InitWindow(WINDOW_SIZE, WINDOW_SIZE, "raylib");
     int grid[GRID_SIZE][GRID_SIZE] = { 0 };
 
-    grid[50*cellSize][51*cellSize] = 1;
-    grid[50*cellSize][52*cellSize] = 1;
-    grid[51*cellSize][50*cellSize] = 1;
-    grid[51*cellSize][51*cellSize] = 1;
-    grid[52*cellSize][51*cellSize] = 1;
-
+    spawnPentomino(100, 100, grid);
     while (!WindowShouldClose()) {
         BeginDrawing();
         ClearBackground(WHITE);
