@@ -3,10 +3,13 @@
 #include <unistd.h>
 #include <stdbool.h>
 #include <string.h>
+#include <stdlib.h>
+#include <time.h>
 
 const int cellSize = 3;
-#define GRID_SIZE 200
-#define WINDOW_SIZE (GRID_SIZE * cellSize)
+#define GRID_SIZE 1050
+#define WINDOW_HEIGHT 720
+#define WINDOW_WIDTH 1280
 
 // assumes square matrix
 int checkBounds(int i, int j, int mtxSize){
@@ -24,12 +27,26 @@ bool checkCell(int aliveNeighbours, bool dead){
     return aliveNeighbours == 2 || aliveNeighbours == 3;
 }
 
-void spawnPentomino(int x, int y, int grid[GRID_SIZE][GRID_SIZE]){
+void spawnPentomino(int grid[GRID_SIZE][GRID_SIZE]){
+    int x = rand() % (GRID_SIZE-6);
+    int y = rand() % (GRID_SIZE-6);
     grid[x][y+1] = 1;
     grid[x][y+2] = 1;
     grid[x+1][y] = 1;
     grid[x+1][y+1] = 1;
     grid[x+2][y+1] = 1;
+}
+
+void spawnAcorn(int grid[GRID_SIZE][GRID_SIZE]){
+    int x = rand() % (GRID_SIZE-6);
+    int y = rand() % (GRID_SIZE-6);
+    grid[x][y+1] = 1;
+    grid[x+1][y+3] = 1;
+    grid[x+2][y] = 1;
+    grid[x+2][y+1] = 1;
+    grid[x+2][y+4] = 1;
+    grid[x+2][y+5] = 1;
+    grid[x+2][y+6] = 1;
 }
 
 // [i-5, j-5] [i, j-5] [i+5, j-5]
@@ -76,17 +93,22 @@ void checkGrid(int grid[GRID_SIZE][GRID_SIZE]){
 // 0,0 5,5
 
 int main() {
-    InitWindow(WINDOW_SIZE, WINDOW_SIZE, "raylib");
+    srand(time(NULL));
+    InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "raylib");
     int grid[GRID_SIZE][GRID_SIZE] = { 0 };
 
-    spawnPentomino(100, 100, grid);
+    int spawns = rand() % 200;
+    for(int i = 0; i < spawns; i++){
+        spawnAcorn(grid);
+        spawnPentomino(grid);
+    }
     while (!WindowShouldClose()) {
         BeginDrawing();
         ClearBackground(WHITE);
 
         checkGrid(grid);
 
-        usleep(100 * 1000);
+        usleep(50 * 1000);
         EndDrawing();
     }
 
