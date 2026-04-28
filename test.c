@@ -1,19 +1,18 @@
 #include <stdio.h>
+#include <stdlib.h>
+
+#define GRID_SIZE 10
 
 int main(){
-    int grid[3][3] = { 0 };
+    int **grid = (int**) calloc(0, GRID_SIZE * sizeof(int *));
+    for(int i = 0; i < GRID_SIZE; i++){
+        grid[i] = calloc(GRID_SIZE, sizeof(int));
+    }
 
-    grid[0][1] = 1;
-    grid[0][2] = 1;
-    grid[1][1] = 1;
-    grid[0][1] = 1;
-    grid[1][0] = 1;
-    grid[2][1] = 1;
-    for(int i =0;i<3;i++){
-        for(int j=0;j<3;j++){
-            printf("| %d |", grid[i][j]);
+    for(int i = 0; i < GRID_SIZE; i++){
+        for(int j =0 ; j < GRID_SIZE; j++){
+            printf("%d", grid[i][j]);
         }
         printf("\n");
     }
-
 }

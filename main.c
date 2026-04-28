@@ -7,7 +7,7 @@
 #include <time.h>
 
 const int cellSize = 3;
-#define GRID_SIZE 1050
+#define GRID_SIZE 5000
 #define WINDOW_HEIGHT 720
 #define WINDOW_WIDTH 1280
 
@@ -27,7 +27,7 @@ bool checkCell(int aliveNeighbours, bool dead){
     return aliveNeighbours == 2 || aliveNeighbours == 3;
 }
 
-void spawnPentomino(int grid[GRID_SIZE][GRID_SIZE]){
+void spawnPentomino(int **grid){
     int x = rand() % (GRID_SIZE-6);
     int y = rand() % (GRID_SIZE-6);
     grid[x][y+1] = 1;
@@ -37,7 +37,7 @@ void spawnPentomino(int grid[GRID_SIZE][GRID_SIZE]){
     grid[x+2][y+1] = 1;
 }
 
-void spawnAcorn(int grid[GRID_SIZE][GRID_SIZE]){
+void spawnAcorn(int **grid){
     int x = rand() % (GRID_SIZE-6);
     int y = rand() % (GRID_SIZE-6);
     grid[x][y+1] = 1;
@@ -52,9 +52,17 @@ void spawnAcorn(int grid[GRID_SIZE][GRID_SIZE]){
 // [i-5, j-5] [i, j-5] [i+5, j-5]
 // [i-5,  j ] [ i, j ] [i+5,  j ]
 // [i-5, j+5] [ i,j+5] [i+5, j+5]
-void checkGrid(int grid[GRID_SIZE][GRID_SIZE]){
-    int newGrid[GRID_SIZE][GRID_SIZE];
-    memcpy(newGrid, grid, GRID_SIZE * GRID_SIZE * sizeof(int));
+void checkGrid(int **grid){
+    int **newGrid = (int**) calloc(GRID_SIZE, sizeof(int *));
+    for(int i = 0; i < GRID_SIZE; i++){
+        newGrid[i] = calloc(GRID_SIZE, sizeof(int));
+    }
+
+    for(int i = 0; i < GRID_SIZE; i++){
+        for(int j = 0; j < GRID_SIZE; j++){
+            newGrid[i][j] = grid[i][j];
+        }
+    }
 
     bool dead = false;
     for(int i = 0; i < GRID_SIZE; i++){
@@ -87,7 +95,13 @@ void checkGrid(int grid[GRID_SIZE][GRID_SIZE]){
             } else newGrid[i][j] = 0;
         }
     }
-    memcpy(grid, newGrid, GRID_SIZE * GRID_SIZE * sizeof(int));
+
+    for(int i = 0; i < GRID_SIZE; i++){
+        for(int j = 0; j < GRID_SIZE; j++){
+            grid[i][j] = newGrid[i][j];
+        }
+    }
+    free(newGrid);
 }
 
 // 0,0 5,5
@@ -95,9 +109,13 @@ void checkGrid(int grid[GRID_SIZE][GRID_SIZE]){
 int main() {
     srand(time(NULL));
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "raylib");
-    int grid[GRID_SIZE][GRID_SIZE] = { 0 };
 
-    int spawns = rand() % 200;
+    int **grid = (int**) calloc(GRID_SIZE, sizeof(int *));
+    for(int i = 0; i < GRID_SIZE; i++){
+        grid[i] = calloc(GRID_SIZE, sizeof(int));
+    }
+
+    int spawns = rand() % 1000;
     for(int i = 0; i < spawns; i++){
         spawnAcorn(grid);
         spawnPentomino(grid);
@@ -108,10 +126,11 @@ int main() {
 
         checkGrid(grid);
 
-        usleep(50 * 1000);
+        usleep(1000);
         EndDrawing();
     }
 
+    free(grid);
     CloseWindow();
     return 0;
 }
