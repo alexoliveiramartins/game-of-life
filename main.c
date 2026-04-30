@@ -7,7 +7,7 @@
 #include <time.h>
 
 const int cellSize = 3;
-#define GRID_SIZE 5000
+#define GRID_SIZE 2000
 #define WINDOW_HEIGHT 720
 #define WINDOW_WIDTH 1280
 
@@ -52,18 +52,7 @@ void spawnAcorn(int **grid){
 // [i-5, j-5] [i, j-5] [i+5, j-5]
 // [i-5,  j ] [ i, j ] [i+5,  j ]
 // [i-5, j+5] [ i,j+5] [i+5, j+5]
-void checkGrid(int **grid){
-    int **newGrid = (int**) calloc(GRID_SIZE, sizeof(int *));
-    for(int i = 0; i < GRID_SIZE; i++){
-        newGrid[i] = calloc(GRID_SIZE, sizeof(int));
-    }
-
-    for(int i = 0; i < GRID_SIZE; i++){
-        for(int j = 0; j < GRID_SIZE; j++){
-            newGrid[i][j] = grid[i][j];
-        }
-    }
-
+void checkGrid(int **grid, int **auxGrid){
     bool dead = false;
     for(int i = 0; i < GRID_SIZE; i++){
         for(int j = 0; j < GRID_SIZE; j++){
@@ -91,17 +80,16 @@ void checkGrid(int **grid){
 
             if(checkCell(aliveNeighbours, dead)){
                 drawCell(i, j, BLACK);
-                newGrid[i][j] = 1;
-            } else newGrid[i][j] = 0;
+                auxGrid[i][j] = 1;
+            } else auxGrid[i][j] = 0;
         }
     }
 
     for(int i = 0; i < GRID_SIZE; i++){
         for(int j = 0; j < GRID_SIZE; j++){
-            grid[i][j] = newGrid[i][j];
+            grid[i][j] = auxGrid[i][j];
         }
     }
-    free(newGrid);
 }
 
 // 0,0 5,5
@@ -114,6 +102,11 @@ int main() {
     for(int i = 0; i < GRID_SIZE; i++){
         grid[i] = calloc(GRID_SIZE, sizeof(int));
     }
+    int **auxGrid = (int**) calloc(GRID_SIZE, sizeof(int *));
+    for(int i = 0; i < GRID_SIZE; i++){
+        auxGrid[i] = calloc(GRID_SIZE, sizeof(int));
+    }
+
 
     int spawns = rand() % 1000;
     for(int i = 0; i < spawns; i++){
@@ -124,13 +117,20 @@ int main() {
         BeginDrawing();
         ClearBackground(WHITE);
 
-        checkGrid(grid);
+        checkGrid(grid, auxGrid);
 
         usleep(1000);
         EndDrawing();
     }
 
+    for(int i = 0; i < GRID_SIZE; i++){
+        free(grid[i]);
+    }
     free(grid);
+    for(int i = 0; i < GRID_SIZE; i++){
+        free(auxGrid[i]);
+    }
+    free(auxGrid);
     CloseWindow();
     return 0;
 }
