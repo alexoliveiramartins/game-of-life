@@ -1,6 +1,6 @@
 # game-of-life
-Implementation of the Game of Life using CUDA programming in Raylib
-This is just a simple game of life implementation that uses a square grid of size `GRID_SIZE` and spawns a number of random [R-pentominos](https://www.youtube.com/watch?v=bTPN3spiq1I) and [Pinecones](https://www.youtube.com/watch?v=dUq5SWXs0bc)
+Implementation of the Game of Life using CUDA programming in Raylib.
+This is just a simple game of life implementation that uses a square grid of size `GRID_SIZE` and spawns a number of random [R-pentominos](https://www.youtube.com/watch?v=bTPN3spiq1I) and [Acorns](https://www.youtube.com/watch?v=dUq5SWXs0bc)
 
 ## Demonstration (real-time)
 
