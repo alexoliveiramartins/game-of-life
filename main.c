@@ -7,9 +7,11 @@
 #include <time.h>
 
 const int cellSize = 3;
-#define GRID_SIZE 2000
+#define GRID_SIZE 1000
 #define WINDOW_HEIGHT 720
 #define WINDOW_WIDTH 1280
+
+#define IDX(i, j) ((i) * GRID_SIZE + (j))
 
 // assumes square matrix
 int checkBounds(int i, int j, int mtxSize){
@@ -27,67 +29,76 @@ bool checkCell(int aliveNeighbours, bool dead){
     return aliveNeighbours == 2 || aliveNeighbours == 3;
 }
 
-void spawnPentomino(int **grid){
+void spawnPentomino(int *grid){
     int x = rand() % (GRID_SIZE-6);
     int y = rand() % (GRID_SIZE-6);
-    grid[x][y+1] = 1;
-    grid[x][y+2] = 1;
-    grid[x+1][y] = 1;
-    grid[x+1][y+1] = 1;
-    grid[x+2][y+1] = 1;
+    grid[IDX(x,y+1)] = 1;
+    grid[IDX(x,y+2)] = 1;
+    grid[IDX(x+1,y)] = 1;
+    grid[IDX(x+1,y+1)] = 1;
+    grid[IDX(x+2,y+1)] = 1;
 }
 
-void spawnAcorn(int **grid){
+void spawnAcorn(int *grid){
     int x = rand() % (GRID_SIZE-6);
     int y = rand() % (GRID_SIZE-6);
-    grid[x][y+1] = 1;
-    grid[x+1][y+3] = 1;
-    grid[x+2][y] = 1;
-    grid[x+2][y+1] = 1;
-    grid[x+2][y+4] = 1;
-    grid[x+2][y+5] = 1;
-    grid[x+2][y+6] = 1;
+    grid[IDX(x, y+1)] = 1;
+    grid[IDX(x+1,y+3)] = 1;
+    grid[IDX(x+2,y)] = 1;
+    grid[IDX(x+2,y+1)] = 1;
+    grid[IDX(x+2,y+4)] = 1;
+    grid[IDX(x+2,y+5)] = 1;
+    grid[IDX(x+2,y+6)] = 1;
 }
 
 // [i-5, j-5] [i, j-5] [i+5, j-5]
 // [i-5,  j ] [ i, j ] [i+5,  j ]
 // [i-5, j+5] [ i,j+5] [i+5, j+5]
-void checkGrid(int **grid, int **auxGrid){
+void checkGrid(int *grid, int *auxGrid){
     bool dead = false;
     for(int i = 0; i < GRID_SIZE; i++){
         for(int j = 0; j < GRID_SIZE; j++){
             int aliveNeighbours = 0;
-            dead = grid[i][j] == 0 ? true : false;
+            dead = grid[IDX(i,j)] == 0 ? true : false;
             // i - 5
             if(checkBounds(i-1, j-1, GRID_SIZE))
-                if(grid[i-1][j-1] == 1) aliveNeighbours++;
+                if(grid[IDX(i-1,j-1)] == 1) aliveNeighbours++;
             if(checkBounds(i-1, j, GRID_SIZE))
-                if(grid[i-1][j] == 1) aliveNeighbours++;
+                if(grid[IDX(i-1,j)] == 1) aliveNeighbours++;
             if(checkBounds(i-1, j+1, GRID_SIZE))
-                if(grid[i-1][j+1] == 1) aliveNeighbours++;
+                if(grid[IDX(i-1,j+1)] == 1) aliveNeighbours++;
             // i
             if(checkBounds(i, j-1, GRID_SIZE))
-                if(grid[i][j-1] == 1) aliveNeighbours++;
+                if(grid[IDX(i,j-1)] == 1) aliveNeighbours++;
             if(checkBounds(i, j+1, GRID_SIZE))
-                if(grid[i][j+1] == 1) aliveNeighbours++;
+                if(grid[IDX(i,j+1)] == 1) aliveNeighbours++;
             // i+5
             if(checkBounds(i+1, j-1, GRID_SIZE))
-                if(grid[i+1][j-1] == 1) aliveNeighbours++;
+                if(grid[IDX(i+1,j-1)] == 1) aliveNeighbours++;
             if(checkBounds(i+1, j, GRID_SIZE))
-                if(grid[i+1][j] == 1) aliveNeighbours++;
+                if(grid[IDX(i+1,j)] == 1) aliveNeighbours++;
             if(checkBounds(i+1, j+1, GRID_SIZE))
-                if(grid[i+1][j+1] == 1) aliveNeighbours++;
+                if(grid[IDX(i+1,j+1)] == 1) aliveNeighbours++;
 
             if(checkCell(aliveNeighbours, dead)){
-                drawCell(i, j, BLACK);
-                auxGrid[i][j] = 1;
-            } else auxGrid[i][j] = 0;
+                auxGrid[IDX(i,j)] = 1;
+            } else auxGrid[IDX(i,j)] = 0;
         }
     }
 
     for(int i = 0; i < GRID_SIZE; i++){
         for(int j = 0; j < GRID_SIZE; j++){
-            grid[i][j] = auxGrid[i][j];
+            grid[IDX(i,j)] = auxGrid[IDX(i,j)];
+        }
+    }
+}
+
+void drawGrid(int *grid){
+    for(int i = 0; i < GRID_SIZE; i++){
+        for(int j = 0; j < GRID_SIZE; j++){
+            if(grid[IDX(i,j)] == 1){
+                drawCell(i, j, BLACK);
+            }
         }
     }
 }
@@ -98,17 +109,22 @@ int main() {
     srand(time(NULL));
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "raylib");
 
-    int **grid = (int**) calloc(GRID_SIZE, sizeof(int *));
-    for(int i = 0; i < GRID_SIZE; i++){
-        grid[i] = calloc(GRID_SIZE, sizeof(int));
-    }
-    int **auxGrid = (int**) calloc(GRID_SIZE, sizeof(int *));
-    for(int i = 0; i < GRID_SIZE; i++){
-        auxGrid[i] = calloc(GRID_SIZE, sizeof(int));
-    }
+    // arrays for cuda
+    int *grid = calloc(GRID_SIZE * GRID_SIZE, sizeof(int));
+    int *auxGrid = calloc(GRID_SIZE * GRID_SIZE, sizeof(int));
+
+    // non-cuda (matrices)
+    // int **grid = (int**) calloc(GRID_SIZE, sizeof(int *));
+    // for(int i = 0; i < GRID_SIZE; i++){
+    //     grid[i] = calloc(GRID_SIZE, sizeof(int));
+    // }
+    // int **auxGrid = (int**) calloc(GRID_SIZE, sizeof(int *));
+    // for(int i = 0; i < GRID_SIZE; i++){
+    //     auxGrid[i] = calloc(GRID_SIZE, sizeof(int));
+    // }
 
 
-    int spawns = rand() % 1000;
+    int spawns = rand() % 2000;
     for(int i = 0; i < spawns; i++){
         spawnAcorn(grid);
         spawnPentomino(grid);
@@ -117,19 +133,20 @@ int main() {
         BeginDrawing();
         ClearBackground(WHITE);
 
+        drawGrid(grid);
         checkGrid(grid, auxGrid);
 
         usleep(1000);
         EndDrawing();
     }
 
-    for(int i = 0; i < GRID_SIZE; i++){
-        free(grid[i]);
-    }
+    // for(int i = 0; i < GRID_SIZE; i++){
+    //     free(grid[i]);
+    // }
     free(grid);
-    for(int i = 0; i < GRID_SIZE; i++){
-        free(auxGrid[i]);
-    }
+    // for(int i = 0; i < GRID_SIZE; i++){
+    //     free(auxGrid[i]);
+    // }
     free(auxGrid);
     CloseWindow();
     return 0;
