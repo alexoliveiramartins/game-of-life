@@ -7,7 +7,7 @@
 #include <time.h>
 
 const int cellSize = 3;
-#define GRID_SIZE 500
+#define GRID_SIZE 2000
 #define WINDOW_HEIGHT 720
 #define WINDOW_WIDTH 1280
 
@@ -102,7 +102,7 @@ int main() {
     int *auxGrid = (int *)calloc(GRID_SIZE * GRID_SIZE, sizeof(int));
     int *aux_cuda;
 
-    int spawns = rand() % 400;
+    int spawns = rand() % 5000;
     for(int i = 0; i < spawns; i++){
         spawnAcorn(grid);
         spawnPentomino(grid);
@@ -137,7 +137,7 @@ int main() {
 
         cudaMemcpy(grid, grid_cuda, total * sizeof(int), cudaMemcpyDeviceToHost);
 
-        usleep(1000);
+        // usleep(1000);
         EndDrawing();
     }
 

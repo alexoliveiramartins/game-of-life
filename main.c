@@ -7,7 +7,7 @@
 #include <time.h>
 
 const int cellSize = 3;
-#define GRID_SIZE 1000
+#define GRID_SIZE 2000
 #define WINDOW_HEIGHT 720
 #define WINDOW_WIDTH 1280
 
@@ -124,7 +124,7 @@ int main() {
     // }
 
 
-    int spawns = rand() % 2000;
+    int spawns = rand() % 5000;
     for(int i = 0; i < spawns; i++){
         spawnAcorn(grid);
         spawnPentomino(grid);
@@ -136,7 +136,7 @@ int main() {
         drawGrid(grid);
         checkGrid(grid, auxGrid);
 
-        usleep(1000);
+        // usleep(1000);
         EndDrawing();
     }
 
