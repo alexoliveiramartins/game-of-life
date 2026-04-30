@@ -51,9 +51,6 @@ void spawnAcorn(int *grid){
     grid[IDX(x+2,y+6)] = 1;
 }
 
-// [i-5, j-5] [i, j-5] [i+5, j-5]
-// [i-5,  j ] [ i, j ] [i+5,  j ]
-// [i-5, j+5] [ i,j+5] [i+5, j+5]
 __global__ void checkGrid(int *grid, int *auxGrid, int gridSize){
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     int total = gridSize * gridSize;
@@ -117,7 +114,7 @@ int main() {
 
     while (!WindowShouldClose()) {
         int total = GRID_SIZE * GRID_SIZE;
-        int threads = 256;
+        int threads = 512;
         int blocks = (total + threads - 1) / threads;
 
         BeginDrawing();

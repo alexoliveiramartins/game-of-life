@@ -109,20 +109,8 @@ int main() {
     srand(time(NULL));
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "raylib");
 
-    // arrays for cuda
     int *grid = calloc(GRID_SIZE * GRID_SIZE, sizeof(int));
     int *auxGrid = calloc(GRID_SIZE * GRID_SIZE, sizeof(int));
-
-    // non-cuda (matrices)
-    // int **grid = (int**) calloc(GRID_SIZE, sizeof(int *));
-    // for(int i = 0; i < GRID_SIZE; i++){
-    //     grid[i] = calloc(GRID_SIZE, sizeof(int));
-    // }
-    // int **auxGrid = (int**) calloc(GRID_SIZE, sizeof(int *));
-    // for(int i = 0; i < GRID_SIZE; i++){
-    //     auxGrid[i] = calloc(GRID_SIZE, sizeof(int));
-    // }
-
 
     int spawns = rand() % 5000;
     for(int i = 0; i < spawns; i++){
@@ -140,13 +128,7 @@ int main() {
         EndDrawing();
     }
 
-    // for(int i = 0; i < GRID_SIZE; i++){
-    //     free(grid[i]);
-    // }
     free(grid);
-    // for(int i = 0; i < GRID_SIZE; i++){
-    //     free(auxGrid[i]);
-    // }
     free(auxGrid);
     CloseWindow();
     return 0;
