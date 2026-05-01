@@ -4,13 +4,14 @@ This is just a simple game of life implementation that uses a square grid of siz
 
 ## Demonstration (real-time)
 
-> GRID_SIZE = 2000 & 5000 random spawns
+> GRID_SIZE = 3000 & 5000 random spawns (2 patterns each spawn so 10000, but this only makes it visually pleasing, no change in processing as it processes the whole grid everytime)
 
 - GPU processing with CUDA
-<img width="720" height="432" alt="CUDA" src="https://github.com/user-attachments/assets/3dad9107-2a45-4404-8c29-b8b2d37a9a96" />
+<img width="720" height="427" alt="CUDA" src="https://github.com/user-attachments/assets/ce098486-2729-4459-9941-d6a3e178b3a9" />
+
 
 - CPU processing
-<img width="720" height="432" alt="NONCUDA" src="https://github.com/user-attachments/assets/ab37ca50-dd51-48bf-a76e-dbe2e9c57b08" />
+<img width="720" height="427" alt="NONCUDA" src="https://github.com/user-attachments/assets/d220f844-9b6b-4394-988e-d281df19cbe2" />
 
 
 ## Prerequisites
