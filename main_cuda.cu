@@ -14,7 +14,9 @@
 
 #define IDX(i, j) ((i) * GRID_SIZE + (j))
 
-// assumes square matrix
+void spawnPentomino(unsigned char *grid);
+void spawnAcorn(unsigned char *grid);
+
 __device__ int checkBounds(int i, int j, int mtxSize){
     if(i < 0 || j < 0) return 0;
     else if(i > mtxSize-1 || j > mtxSize-1) return 0;
@@ -28,28 +30,6 @@ void drawCell(int x, int y, Color color){
 __device__ bool checkCell(int aliveNeighbours, bool dead){
     if(dead) return aliveNeighbours == 3;
     return aliveNeighbours == 2 || aliveNeighbours == 3;
-}
-
-void spawnPentomino(unsigned char *grid){
-    int x = rand() % (GRID_SIZE-6);
-    int y = rand() % (GRID_SIZE-6);
-    grid[IDX(x,y+1)] = 1;
-    grid[IDX(x,y+2)] = 1;
-    grid[IDX(x+1,y)] = 1;
-    grid[IDX(x+1,y+1)] = 1;
-    grid[IDX(x+2,y+1)] = 1;
-}
-
-void spawnAcorn(unsigned char *grid){
-    int x = rand() % (GRID_SIZE-6);
-    int y = rand() % (GRID_SIZE-6);
-    grid[IDX(x, y+1)] = 1;
-    grid[IDX(x+1,y+3)] = 1;
-    grid[IDX(x+2,y)] = 1;
-    grid[IDX(x+2,y+1)] = 1;
-    grid[IDX(x+2,y+4)] = 1;
-    grid[IDX(x+2,y+5)] = 1;
-    grid[IDX(x+2,y+6)] = 1;
 }
 
 __global__ void checkGrid(unsigned char *grid, unsigned char *auxGrid, int gridSize){
@@ -91,8 +71,6 @@ void drawGrid(unsigned char *grid){
     }
 }
 
-// 0,0 5,5
-
 int main() {
     srand(time(NULL));
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "raylib");
@@ -116,8 +94,6 @@ int main() {
     cudaMemcpy(grid_cuda, grid, total * sizeof(unsigned char), cudaMemcpyHostToDevice);
 
     cudaMalloc(&aux_cuda, total * sizeof(unsigned char));
-    // cudaMemcpy(aux_cuda, grid, total * sizeof(unsigned char), cudaMemcpyHostToDevice);
-
 
     while (!WindowShouldClose()) {
         int threads = 256;
@@ -139,7 +115,6 @@ int main() {
         BeginDrawing();
         ClearBackground(WHITE);
         drawGrid(grid);
-        // usleep(1000);
         EndDrawing();
     }
 
@@ -148,4 +123,26 @@ int main() {
     free(grid);
     CloseWindow();
     return 0;
+}
+
+void spawnPentomino(unsigned char *grid){
+    int x = rand() % (GRID_SIZE-6);
+    int y = rand() % (GRID_SIZE-6);
+    grid[IDX(x,y+1)] = 1;
+    grid[IDX(x,y+2)] = 1;
+    grid[IDX(x+1,y)] = 1;
+    grid[IDX(x+1,y+1)] = 1;
+    grid[IDX(x+2,y+1)] = 1;
+}
+
+void spawnAcorn(unsigned char *grid){
+    int x = rand() % (GRID_SIZE-6);
+    int y = rand() % (GRID_SIZE-6);
+    grid[IDX(x, y+1)] = 1;
+    grid[IDX(x+1,y+3)] = 1;
+    grid[IDX(x+2,y)] = 1;
+    grid[IDX(x+2,y+1)] = 1;
+    grid[IDX(x+2,y+4)] = 1;
+    grid[IDX(x+2,y+5)] = 1;
+    grid[IDX(x+2,y+6)] = 1;
 }

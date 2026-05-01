@@ -53,34 +53,23 @@ void spawnAcorn(unsigned char * grid){
     grid[IDX(x+2,y+6)] = 1;
 }
 
-// [i-5, j-5] [i, j-5] [i+5, j-5]
-// [i-5,  j ] [ i, j ] [i+5,  j ]
-// [i-5, j+5] [ i,j+5] [i+5, j+5]
 void checkGrid(unsigned char * grid, unsigned char * auxGrid){
     bool dead = false;
     for(int i = 0; i < GRID_SIZE; i++){
         for(int j = 0; j < GRID_SIZE; j++){
             int aliveNeighbours = 0;
             dead = grid[IDX(i,j)] == 0 ? true : false;
-            // i - 5
-            if(checkBounds(i-1, j-1, GRID_SIZE))
-                if(grid[IDX(i-1,j-1)] == 1) aliveNeighbours++;
-            if(checkBounds(i-1, j, GRID_SIZE))
-                if(grid[IDX(i-1,j)] == 1) aliveNeighbours++;
-            if(checkBounds(i-1, j+1, GRID_SIZE))
-                if(grid[IDX(i-1,j+1)] == 1) aliveNeighbours++;
-            // i
-            if(checkBounds(i, j-1, GRID_SIZE))
-                if(grid[IDX(i,j-1)] == 1) aliveNeighbours++;
-            if(checkBounds(i, j+1, GRID_SIZE))
-                if(grid[IDX(i,j+1)] == 1) aliveNeighbours++;
-            // i+5
-            if(checkBounds(i+1, j-1, GRID_SIZE))
-                if(grid[IDX(i+1,j-1)] == 1) aliveNeighbours++;
-            if(checkBounds(i+1, j, GRID_SIZE))
-                if(grid[IDX(i+1,j)] == 1) aliveNeighbours++;
-            if(checkBounds(i+1, j+1, GRID_SIZE))
-                if(grid[IDX(i+1,j+1)] == 1) aliveNeighbours++;
+
+            if(checkBounds(i-1, j-1, GRID_SIZE) && grid[IDX(i-1,j-1)] == 1) aliveNeighbours++;
+            if(checkBounds(i-1, j, GRID_SIZE) && grid[IDX(i-1,j)] == 1) aliveNeighbours++;
+            if(checkBounds(i-1, j+1, GRID_SIZE) && grid[IDX(i-1,j+1)] == 1) aliveNeighbours++;
+
+            if(checkBounds(i, j-1, GRID_SIZE) && grid[IDX(i,j-1)] == 1) aliveNeighbours++;
+            if(checkBounds(i, j+1, GRID_SIZE) && grid[IDX(i,j+1)] == 1) aliveNeighbours++;
+
+            if(checkBounds(i+1, j-1, GRID_SIZE) && grid[IDX(i+1,j-1)] == 1) aliveNeighbours++;
+            if(checkBounds(i+1, j, GRID_SIZE) && grid[IDX(i+1,j)] == 1) aliveNeighbours++;
+            if(checkBounds(i+1, j+1, GRID_SIZE) && grid[IDX(i+1,j+1)] == 1) aliveNeighbours++;
 
             if(checkCell(aliveNeighbours, dead)){
                 auxGrid[IDX(i,j)] = 1;
@@ -101,8 +90,6 @@ void drawGrid(unsigned char * grid){
         }
     }
 }
-
-// 0,0 5,5
 
 int main() {
     srand(time(NULL));
@@ -132,7 +119,6 @@ int main() {
         grid = auxGrid;
         auxGrid = temp;
 
-        // usleep(1000);
         EndDrawing();
     }
 
