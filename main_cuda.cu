@@ -6,10 +6,11 @@
 #include <stdlib.h>
 #include <time.h>
 
-const int cellSize = 3;
-#define GRID_SIZE 2000
+#define CELL_SIZE 1
+#define GRID_SIZE 3000
 #define WINDOW_HEIGHT 720
 #define WINDOW_WIDTH 1280
+#define SPAWNS 5000
 
 #define IDX(i, j) ((i) * GRID_SIZE + (j))
 
@@ -21,7 +22,7 @@ __device__ int checkBounds(int i, int j, int mtxSize){
 }
 
 void drawCell(int x, int y, Color color){
-    DrawRectangle(x * cellSize, y*cellSize, cellSize, cellSize, color);
+    DrawRectangle(x * CELL_SIZE, y*CELL_SIZE, CELL_SIZE, CELL_SIZE, color);
 }
 
 __device__ bool checkCell(int aliveNeighbours, bool dead){
@@ -29,7 +30,7 @@ __device__ bool checkCell(int aliveNeighbours, bool dead){
     return aliveNeighbours == 2 || aliveNeighbours == 3;
 }
 
-void spawnPentomino(int *grid){
+void spawnPentomino(unsigned char *grid){
     int x = rand() % (GRID_SIZE-6);
     int y = rand() % (GRID_SIZE-6);
     grid[IDX(x,y+1)] = 1;
@@ -39,7 +40,7 @@ void spawnPentomino(int *grid){
     grid[IDX(x+2,y+1)] = 1;
 }
 
-void spawnAcorn(int *grid){
+void spawnAcorn(unsigned char *grid){
     int x = rand() % (GRID_SIZE-6);
     int y = rand() % (GRID_SIZE-6);
     grid[IDX(x, y+1)] = 1;
@@ -51,7 +52,7 @@ void spawnAcorn(int *grid){
     grid[IDX(x+2,y+6)] = 1;
 }
 
-__global__ void checkGrid(int *grid, int *auxGrid, int gridSize){
+__global__ void checkGrid(unsigned char *grid, unsigned char *auxGrid, int gridSize){
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     int total = gridSize * gridSize;
 
@@ -63,23 +64,26 @@ __global__ void checkGrid(int *grid, int *auxGrid, int gridSize){
     bool dead = grid[idx] == 0;
     int aliveNeighbours = 0;
 
-    if(checkBounds(i-1, j-1, GRID_SIZE) && grid[IDX(i-1,j-1)] == 1) aliveNeighbours++;
-    if(checkBounds(i-1, j, GRID_SIZE) && grid[IDX(i-1,j)] == 1) aliveNeighbours++;
-    if(checkBounds(i-1, j+1, GRID_SIZE) && grid[IDX(i-1,j+1)] == 1) aliveNeighbours++;
+    if(checkBounds(i-1, j-1, gridSize) && grid[IDX(i-1,j-1)] == 1) aliveNeighbours++;
+    if(checkBounds(i-1, j, gridSize) && grid[IDX(i-1,j)] == 1) aliveNeighbours++;
+    if(checkBounds(i-1, j+1, gridSize) && grid[IDX(i-1,j+1)] == 1) aliveNeighbours++;
     // i
-    if(checkBounds(i, j-1, GRID_SIZE) && grid[IDX(i,j-1)] == 1) aliveNeighbours++;
-    if(checkBounds(i, j+1, GRID_SIZE) && grid[IDX(i,j+1)] == 1) aliveNeighbours++;
+    if(checkBounds(i, j-1, gridSize) && grid[IDX(i,j-1)] == 1) aliveNeighbours++;
+    if(checkBounds(i, j+1, gridSize) && grid[IDX(i,j+1)] == 1) aliveNeighbours++;
     // i+5
-    if(checkBounds(i+1, j-1, GRID_SIZE) && grid[IDX(i+1,j-1)] == 1) aliveNeighbours++;
-    if(checkBounds(i+1, j, GRID_SIZE) && grid[IDX(i+1,j)] == 1) aliveNeighbours++;
-    if(checkBounds(i+1, j+1, GRID_SIZE) && grid[IDX(i+1,j+1)] == 1) aliveNeighbours++;
+    if(checkBounds(i+1, j-1, gridSize) && grid[IDX(i+1,j-1)] == 1) aliveNeighbours++;
+    if(checkBounds(i+1, j, gridSize) && grid[IDX(i+1,j)] == 1) aliveNeighbours++;
+    if(checkBounds(i+1, j+1, gridSize) && grid[IDX(i+1,j+1)] == 1) aliveNeighbours++;
 
     auxGrid[idx] = checkCell(aliveNeighbours, dead) ? 1 : 0;
 }
 
-void drawGrid(int *grid){
-    for(int i = 0; i < GRID_SIZE; i++){
-        for(int j = 0; j < GRID_SIZE; j++){
+void drawGrid(unsigned char *grid){
+    int visibleCols = WINDOW_WIDTH / CELL_SIZE;
+    int visibleRows = WINDOW_HEIGHT / CELL_SIZE;
+
+    for(int i = 0; i < visibleCols; i++){
+        for(int j = 0; j < visibleRows; j++){
             if(grid[IDX(i,j)] == 1){
                 drawCell(i, j, BLACK);
             }
@@ -93,33 +97,31 @@ int main() {
     srand(time(NULL));
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "raylib");
 
-    // arrays for cuda
-    int *grid = (int *)calloc(GRID_SIZE * GRID_SIZE, sizeof(int));
-    int *grid_cuda;
-    int *auxGrid = (int *)calloc(GRID_SIZE * GRID_SIZE, sizeof(int));
-    int *aux_cuda;
+    size_t total = (size_t)GRID_SIZE * GRID_SIZE;
 
-    int spawns = rand() % 5000;
+    // arrays for cuda
+    unsigned char *grid = (unsigned char *)calloc(total, sizeof(unsigned char));
+    unsigned char *grid_cuda;
+    unsigned char *aux_cuda;
+    if(grid == NULL)
+        return 1;
+
+    int spawns = rand() % SPAWNS;
     for(int i = 0; i < spawns; i++){
         spawnAcorn(grid);
         spawnPentomino(grid);
     }
 
-    cudaMalloc(&grid_cuda, GRID_SIZE * GRID_SIZE * sizeof(int));
-    cudaMemcpy(grid_cuda, grid, GRID_SIZE * GRID_SIZE * sizeof(int), cudaMemcpyHostToDevice);
+    cudaMalloc(&grid_cuda, total * sizeof(unsigned char));
+    cudaMemcpy(grid_cuda, grid, total * sizeof(unsigned char), cudaMemcpyHostToDevice);
 
-    cudaMalloc(&aux_cuda, GRID_SIZE * GRID_SIZE * sizeof(int));
-    cudaMemcpy(aux_cuda, grid, GRID_SIZE * GRID_SIZE * sizeof(int), cudaMemcpyHostToDevice);
+    cudaMalloc(&aux_cuda, total * sizeof(unsigned char));
+    // cudaMemcpy(aux_cuda, grid, total * sizeof(unsigned char), cudaMemcpyHostToDevice);
 
 
     while (!WindowShouldClose()) {
-        int total = GRID_SIZE * GRID_SIZE;
-        int threads = 512;
+        int threads = 256;
         int blocks = (total + threads - 1) / threads;
-
-        BeginDrawing();
-        ClearBackground(WHITE);
-        drawGrid(grid);
 
         checkGrid<<<blocks, threads>>>(grid_cuda, aux_cuda, GRID_SIZE);
         cudaError_t err = cudaGetLastError();
@@ -128,12 +130,15 @@ int main() {
         }
         cudaDeviceSynchronize();
 
-        int *tmp = grid_cuda;
+        unsigned char *tmp = grid_cuda;
         grid_cuda = aux_cuda;
         aux_cuda = tmp;
 
-        cudaMemcpy(grid, grid_cuda, total * sizeof(int), cudaMemcpyDeviceToHost);
+        cudaMemcpy(grid, grid_cuda, total * sizeof(unsigned char), cudaMemcpyDeviceToHost);
 
+        BeginDrawing();
+        ClearBackground(WHITE);
+        drawGrid(grid);
         // usleep(1000);
         EndDrawing();
     }
@@ -141,7 +146,6 @@ int main() {
     cudaFree(grid_cuda);
     cudaFree(aux_cuda);
     free(grid);
-    free(auxGrid);
     CloseWindow();
     return 0;
 }

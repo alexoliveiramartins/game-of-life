@@ -36,3 +36,4 @@ make run-cuda
 - https://pt.wikipedia.org/wiki/Jogo_da_vida
 - https://www.raylib.com/cheatsheet/cheatsheet.html
 - [Inventing Game of Life (John Conway) - Numberphile](https://www.youtube.com/watch?v=R9Plq-D1gEk)
+- https://copy.sh/life/examples/
